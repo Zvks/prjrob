@@ -1,6 +1,5 @@
 import logging
 import datetime
-
 import time
 
 # Настройка логирования
@@ -21,3 +20,5 @@ while True:
     logging.info(f"{message}, Time: {current_time}")
     # Задержка на 1 секунду
     time.sleep(1)
+    
+
