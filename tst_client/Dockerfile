@@ -5,8 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY tst.py .
+COPY tst_client.py .
 
-EXPOSE 5000
-
-CMD ["python", "tst.py"]
+CMD ["python", "tst_client.py"]

@@ -38,7 +38,7 @@ class MT5Exchange:
 
         # Создаем секцию rabbitMQ
         self.config['rabbitMQ'] = {
-            'rabbitmq_api': 'http://192.168.1.251:15672',
+            'rabbitmq_api': 'http://192.168.1.206:15671',
             'username': 'guest',
             'password': 'guest',
             'vhost': '%2F',
