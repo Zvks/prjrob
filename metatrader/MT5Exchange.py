@@ -2,7 +2,7 @@ import configparser
 import MetaTrader5 as mt5
 #from rabbit_MQ_rest import rabbitMQrest
 import os
-import json
+from datetime import datetime
 
 class MT5Exchange:
     def __init__(self, config_path='C:\\Users\\user\\AppData\\Roaming\\MetaQuotes\\Terminal\\D0E8209F77C8CF37AD8BF550E51FF075\\MQL5\\Files\\config.ini'):
@@ -15,6 +15,26 @@ class MT5Exchange:
         self.rabbit_mq = None
         if not mt5.initialize():
             raise Exception(f"initialize() failed, error code = {mt5.last_error()}")
+        
+    def __symbol_exists(self, symbol):
+        timeframe = mt5.TIMEFRAME_M5
+        rates = mt5.copy_rates_from_pos(symbol, timeframe, 0, 1)
+        
+        if rates is None or len(rates) == 0:
+            print(f"Нет данных по свечам для {symbol}")
+            return False  # просто возвращаем False
+
+        last_candle_datetime = datetime.fromtimestamp(rates[0]['time'])
+        tick = mt5.symbol_info_tick(symbol)
+        if tick is None:
+            print(f"Не удалось получить тик для {symbol}")
+            return False
+
+        server_datetime = datetime.fromtimestamp(tick.time)
+        time_diff = server_datetime - last_candle_datetime
+        diff_seconds = time_diff.total_seconds()
+
+        return diff_seconds <= 300.0
 
     def create_config(self):
         """
@@ -52,7 +72,8 @@ class MT5Exchange:
         
         symbol_names = []
         for s in symbols:
-            symbol_names.append(s.name) 
+            if self.__symbol_exists(s.name):
+                symbol_names.append(s.name) 
                 
 
         self.config['instruments'] = {'instruments': ','.join(symbol_names)}
